@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'pp'
 
 @authorized_numbers = ENV['AUTHORIZED_FAX_RECIPIENTS'].split(';').map {|num| num.strip.freeze }.freeze
 
@@ -39,6 +40,7 @@ end
 post '/fax/receive/done' do
   if params['ErrorCode'].to_i > 0
     logger.fatal(format('TWILIO ERROR -> (%d) %s', params['ErrorCode'], params['ErrorMessage']))
+    logger.debug("FULL ERROR:\n#{params.to_h.pretty_inspect}\n")
     # We're still returning 200 so Twilio knows we got the message that there was an error
   else
     logger.info(format('RECEIVING FAX -> (Pages: %d) %s', params['NumPages'], params['FaxSid'].inspect))
