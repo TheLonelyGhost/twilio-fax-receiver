@@ -1,5 +1,8 @@
 require 'sinatra'
+require 'twilio-ruby'
 require 'pp'
+
+use Rack::TwilioWebhookAuthentication, ENV['TWILIO_AUTH_TOKEN'], '/'
 
 @authorized_numbers = ENV['AUTHORIZED_FAX_RECIPIENTS'].split(';').map {|num| num.strip.freeze }.freeze
 
