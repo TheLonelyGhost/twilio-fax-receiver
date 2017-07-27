@@ -4,7 +4,8 @@ require 'pp'
 
 use Rack::TwilioWebhookAuthentication, ENV['TWILIO_AUTH_TOKEN'], '/'
 
-@authorized_numbers = ENV['AUTHORIZED_FAX_RECIPIENTS'].split(';').map {|num| num.strip.freeze }.freeze
+AUTHORIZED_FAX_RECIPIENTS = ENV['AUTHORIZED_FAX_RECIPIENTS'].split(';').map {|num| num.strip.freeze }.freeze
+DISABLED_SERVICES = ENV['DISABLED_SERVICE'].split(';').map {|svc| svc.strip.downcase.freeze }.freeze
 
 get '/' do
   # TODO: no homepage here, see `/status`
@@ -33,7 +34,8 @@ post '/fax/receive/start' do
 
   content_type 'text/xml'
   catch(:processed) do
-    throw :processed unless @authorized_numbers.include? params['To']
+    throw :processed unless AUTHORIZED_FAX_RECIPIENTS.include? params['To']
+    throw :processed if DISABLED_SERVICES.include? 'fax'
 
     output = allow_response
   end
